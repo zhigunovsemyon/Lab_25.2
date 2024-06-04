@@ -155,8 +155,8 @@ uint8_t QueueSort(queue *q, int16_t(cmp)(int8_t, int8_t))
 		if(QueuePushToEnd(pulld, (cmp(key_val, pulld) > 0) ? left : right))
 		{
 			perror("queue push");
-			QueueFree(left);
-			QueueFree(right);
+			QueueFree(&left);
+			QueueFree(&right);
 			return 1;
 		}
 	}
@@ -165,8 +165,8 @@ uint8_t QueueSort(queue *q, int16_t(cmp)(int8_t, int8_t))
 	if(QueuePushToEnd(key_val, left))
 	{
 		perror("queue push");
-		QueueFree(left);
-		QueueFree(right);
+		QueueFree(&left);
+		QueueFree(&right);
 		return 1;
 	}
 	
@@ -174,8 +174,8 @@ uint8_t QueueSort(queue *q, int16_t(cmp)(int8_t, int8_t))
 	if (left->head->next)
 		if (QueueSort(left, cmp))
 		{	//Освобождение плечей при падении сортировщика
-			QueueFree(left);
-			QueueFree(right);
+			QueueFree(&left);
+			QueueFree(&right);
 			return 1;
 		}
 
@@ -184,8 +184,8 @@ uint8_t QueueSort(queue *q, int16_t(cmp)(int8_t, int8_t))
 		if (right->head->next)
 			if(QueueSort(right, cmp))
 			{	//Освобождение плечей при падении сортировщика
-				QueueFree(left);
-				QueueFree(right);
+				QueueFree(&left);
+				QueueFree(&right);
 				return 1;
 			}
 
@@ -200,7 +200,7 @@ uint8_t QueueSort(queue *q, int16_t(cmp)(int8_t, int8_t))
 
 	//Зануление левого и правого плеча, освобождение
 	left->head = left->tail = right->head = right->tail = NULL;
-	QueueFree(left);
-	QueueFree(right);
+	QueueFree(&left);
+	QueueFree(&right);
 	return 0;
 }
