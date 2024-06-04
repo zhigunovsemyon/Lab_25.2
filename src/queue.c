@@ -144,31 +144,41 @@ uint8_t QueueSort(queue *q, int16_t(cmp)(int8_t, int8_t))
 		perror("QueueInit");
 		return 1;
 	}
-	
+
 	//Извлечение пивота
-	int8_t key_val;
-	QueuePullFromHead(&key_val, q);
+	struct part *pivot = q->head;
+	if (!(q->head = q->head->next))
+		q->tail = NULL;
+	pivot->next = NULL;
 
 	//Цикл продолжается, пока не закончится переданная очередь
-	for(int8_t pulld; !QueuePullFromHead(&pulld, q);)
-	{	//Вставка извлечённого элемента в левое, либо правое плечо
-		if(QueuePushToEnd(pulld, (cmp(key_val, pulld) > 0) ? left : right))
+	for (struct part *pulld; q->head;)
+	{	//Извлечение проверяемого элемента
+		pulld = q->head;
+		if (!(q->head = q->head->next))
+			q->tail = NULL;
+		pulld->next = NULL;
+
+		//Выбор левого, либо правого плеча
+		queue *chosen;
+		chosen = (cmp(pivot->num, pulld->num) > 0) ? left : right;
+
+		//Если очередь пустая, элемент записывается и в хвост, и в голову
+		if (!chosen->tail)
 		{
-			perror("queue push");
-			QueueFree(&left);
-			QueueFree(&right);
-			return 1;
+			chosen->head = chosen->tail = pulld;
+			continue;
 		}
+		//Запись элемента в указателю хвоста нужной очереди, обновление хвоста
+		chosen->tail->next = pulld;
+		chosen->tail = chosen->tail->next;
 	}
 
-	//Вставка пивота в левое плечо
-	if(QueuePushToEnd(key_val, left))
-	{
-		perror("queue push");
-		QueueFree(&left);
-		QueueFree(&right);
-		return 1;
-	}
+	//Вставка пивота в левое плечо, либо в хвост, либо и хвост, и голову
+	if (left->tail)
+		left->tail->next = pivot;
+	else
+		left->head = left->tail = pivot;
 	
 	//Если левое плечо содержит элементы, помимо пивота, нужно его отсортировать
 	if (left->head->next)
