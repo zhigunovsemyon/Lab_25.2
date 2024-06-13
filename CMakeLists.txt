@@ -12,4 +12,5 @@ endif()
 project ("Lab_25.2" LANGUAGES C)
 file(GLOB C_FILES "src/*.c")
 
+add_definitions("-Wall -Wextra -Wconversion -Wsign-conversion")
 add_executable (${PROJECT_NAME} ${C_FILES}) 
